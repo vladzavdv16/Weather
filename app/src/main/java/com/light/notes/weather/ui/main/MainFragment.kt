@@ -1,9 +1,7 @@
 package com.light.notes.weather.ui.main
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -12,6 +10,9 @@ import com.light.notes.weather.R
 import com.light.notes.weather.databinding.FragmentMainBinding
 import com.light.notes.weather.ui.main.hours_adapter.HoursAdapter
 import com.light.notes.weather.ui.main.week_adapter.WeekAdapter
+import com.light.notes.weather.util.APP_ACTIVITY
+import com.squareup.picasso.Picasso
+import okhttp3.internal.format
 
 class MainFragment : Fragment() {
 
@@ -47,12 +48,19 @@ class MainFragment : Fragment() {
         super.onResume()
 
         setupData()
+        viewModel?.day!!.observe(this) {
+            APP_ACTIVITY.title = it.name
+            binding.tvDescription.text = it.description
+            binding.tvTemp.text = "${it.temp}°C"
+            Picasso.get()
+                .load("https://openweathermap.org/img/wn/" + it.icon + "@2x.png")
+                .into(binding.image)
+        }
         binding.recyclerHours.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         viewModel?.isLoading?.observe(viewLifecycleOwner) {
             binding.swipeRefresh.isRefreshing = it
         }
-
 
         binding.recyclerWeek.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
@@ -64,7 +72,7 @@ class MainFragment : Fragment() {
     }
 
     private fun setupData() {
-//
+
         viewModel?.hours?.observe(this, Observer {
             if (it.isNotEmpty()) {
                 hoursAdapter.hoursData(it)
@@ -76,6 +84,19 @@ class MainFragment : Fragment() {
                 weekAdapter.weekData(it)
             }
         })
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.settings -> {
+                APP_ACTIVITY.navController.navigate(R.id.action_mainFragment_to_settingsFragment)
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
 

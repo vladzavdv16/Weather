@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.light.notes.weather.databinding.ActivityMainBinding
+import com.light.notes.weather.util.APP_ACTIVITY
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,8 +18,9 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
+        APP_ACTIVITY = this
         setSupportActionBar(binding.toolbar)
+//        supportActionBar?.setDisplayShowTitleEnabled(false)
 
         navController =
             Navigation.findNavController(this, R.id.fragment)

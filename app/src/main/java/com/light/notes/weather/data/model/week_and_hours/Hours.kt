@@ -1,4 +1,4 @@
-package com.light.notes.weather.data.model
+package com.light.notes.weather.data.model.week_and_hours
 
 data class Hours(
     val time: String,

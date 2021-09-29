@@ -4,6 +4,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.light.notes.weather.databinding.LiHoursBinding
+import com.light.notes.weather.util.HOUR_DOUBLE_DOT_MINUTE
+import com.light.notes.weather.util.toDateFormatOf
+import com.squareup.picasso.Picasso
+import java.sql.Time
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class HoursAdapter :
     RecyclerView.Adapter<HoursAdapter.ViewHolder>() {
@@ -49,9 +56,11 @@ class HoursAdapter :
     class ViewHolder(private val binding: LiHoursBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(cellModel: HoursCellModel) {
-            binding.time.text = cellModel.time
-            binding.temp.text = cellModel.temp.toString()
-
+            binding.time.text = cellModel.time.toDateFormatOf(HOUR_DOUBLE_DOT_MINUTE)
+            binding.temp.text = cellModel.temp.toString() + "°C"
+            Picasso.get()
+                .load("https://openweathermap.org/img/wn/" + cellModel.image + "@2x.png")
+                .into(binding.image)
         }
 
 
