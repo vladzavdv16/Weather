@@ -2,8 +2,10 @@ package com.light.notes.weather.ui.main.week_adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.light.notes.weather.databinding.LiWeekBinding
+import com.light.notes.weather.ui.main.MainViewModel
 import com.light.notes.weather.util.formatDate
 import com.squareup.picasso.Picasso
 import java.text.SimpleDateFormat
@@ -32,7 +34,7 @@ class WeekAdapter() :
         holder.binding.tvDate.text =
             SimpleDateFormat.getDateInstance().format(Date((list[position].date).toLong() * 1000L))
         holder.binding.tvDescription.text = list[position].description
-        holder.binding.tvTempDay.text = list[position].tempDay.toString()+ "°C"
+        holder.binding.tvTempDay.text = list[position].tempDay.toString() + "°C"
         holder.binding.tvTempNight.text = list[position].tempNight.toString() + "°C"
         Picasso.get()
             .load("https://openweathermap.org/img/wn/" + list[position].image + "@2x.png")
