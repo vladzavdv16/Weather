@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.light.notes.weather.R
 import com.light.notes.weather.databinding.FragmentMainBinding
 import com.light.notes.weather.ui.main.hours_adapter.HoursAdapter
+import com.light.notes.weather.ui.main.hours_adapter.HoursCellModel
 import com.light.notes.weather.ui.main.week_adapter.WeekAdapter
 import com.light.notes.weather.ui.main.week_adapter.WeekCellModel
 import com.light.notes.weather.util.APP_ACTIVITY
@@ -31,6 +32,7 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
     private var viewModel: MainViewModel? = null
     private lateinit var locationManager: LocationManager
     private lateinit var observerListWeek: Observer<List<WeekCellModel>>
+    private lateinit var observerListHours: Observer<List<HoursCellModel>>
 
     companion object {
         var LAT: String = ""
@@ -63,6 +65,11 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
                 weekAdapter.weekData(it)
             }
         }
+        observerListHours = Observer {
+            if (it.isNotEmpty()) {
+                hoursAdapter.hoursData(it)
+            }
+        }
         locationManager =
             requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
         getLocation()
@@ -73,8 +80,10 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
         println()
         init()
         binding.recyclerWeek.adapter = weekAdapter
+        binding.recyclerHours.adapter = hoursAdapter
 
         viewModel?.allWeek?.observe(this, observerListWeek)
+        viewModel?.allHours?.observe(this, observerListHours)
 
         binding.swipeRefresh.setOnRefreshListener {
             if (LAT.isEmpty()) {
@@ -114,9 +123,17 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
 
 
     private fun setupData() {
-        viewModel?.hours?.observe(this, Observer {
+        viewModel?.hours?.observe(this, Observer { it ->
             if (it.isNotEmpty()) {
+                viewModel!!.allHours.removeObserver(observerListHours)
                 hoursAdapter.hoursData(it)
+                viewModel?.countHours?.observe(this, Observer { count ->
+                    if (count == 0) {
+                        viewModel!!.insertHours(it)
+                    } else {
+                        viewModel!!.updateHours(it)
+                    }
+                })
             }
         })
 
@@ -125,11 +142,11 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
             if (it.isNotEmpty()) {
                 viewModel!!.allWeek.removeObserver(observerListWeek)
                 weekAdapter.weekData(it)
-                viewModel?.count?.observe(this, Observer { count ->
+                viewModel?.countWeek?.observe(this, Observer { count ->
                     if (count == 0) {
-                        viewModel!!.insert(it)
+                        viewModel!!.insertWeek(it)
                     } else {
-                        viewModel?.update(it)
+                        viewModel?.updateWeek(it)
                     }
                 })
             }

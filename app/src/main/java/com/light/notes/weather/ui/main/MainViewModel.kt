@@ -3,6 +3,7 @@ package com.light.notes.weather.ui.main
 import android.app.Application
 import androidx.lifecycle.*
 import com.light.notes.weather.data.database.AppRoomDatabase
+import com.light.notes.weather.data.database.hours.HoursDatabaseRepositoryImpl
 import com.light.notes.weather.data.database.week.WeekDatabaseRepositoryImpl
 import com.light.notes.weather.domain.repository.DayRepoImpl
 import com.light.notes.weather.domain.repository.HoursRepoImpl
@@ -13,7 +14,8 @@ import com.light.notes.weather.ui.main.model.DayCellModel
 import com.light.notes.weather.ui.main.model.mapToUI
 import com.light.notes.weather.ui.main.week_adapter.WeekCellModel
 import com.light.notes.weather.ui.main.week_adapter.mapToUI
-import com.light.notes.weather.util.REPOSITORY
+import com.light.notes.weather.util.HOURSREPOSITORY
+import com.light.notes.weather.util.WEEKREPOSITORY
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -27,25 +29,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val dayRepo = DayRepoImpl()
 
     lateinit var allWeek: LiveData<List<WeekCellModel>>
+    lateinit var countWeek: LiveData<Int>
 
-    lateinit var count: LiveData<Int>
+    lateinit var allHours: LiveData<List<HoursCellModel>>
+
+    lateinit var countHours: LiveData<Int>
+
 
     fun initDatabase() {
-        val dao = AppRoomDatabase.getInstance(context).getAppRoomDao()
-        REPOSITORY = WeekDatabaseRepositoryImpl(dao)
+        val weekDao = AppRoomDatabase.getInstance(context).getAppRoomDao()
+        val hoursDao = AppRoomDatabase.getInstance(context).getAppRoomHoursDao()
+        WEEKREPOSITORY = WeekDatabaseRepositoryImpl(weekDao)
+        HOURSREPOSITORY = HoursDatabaseRepositoryImpl(hoursDao)
     }
 
-    private val _hours = MutableLiveData<List<HoursCellModel>>().apply {
-        value = ArrayList()
-    }
+    private val _hours = MutableLiveData<List<HoursCellModel>>().apply { value = ArrayList() }
 
-    private val _week = MutableLiveData<List<WeekCellModel>>().apply {
-        value = ArrayList()
-    }
+    private val _week = MutableLiveData<List<WeekCellModel>>().apply { value = ArrayList() }
 
-    private val _isLoading = MutableLiveData<Boolean>().apply {
-        value = false
-    }
+    private val _isLoading = MutableLiveData<Boolean>().apply { value = false }
 
     private val _day = MutableLiveData<DayCellModel>().apply {}
 
@@ -54,21 +56,39 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val week: LiveData<List<WeekCellModel>> = _week
     val day: LiveData<DayCellModel> = _day
 
-    fun insert(allWeek: List<WeekCellModel>) {
+    fun insertWeek(allWeek: List<WeekCellModel>) {
         viewModelScope.launch(Dispatchers.IO) {
-            REPOSITORY.insert(allWeek)
+            WEEKREPOSITORY.insert(allWeek)
         }
     }
 
-    fun delete(deleteAllWeek: List<WeekCellModel>) {
+    fun deleteWeek(deleteAllWeek: List<WeekCellModel>) {
         viewModelScope.launch(Dispatchers.IO) {
-            REPOSITORY.delete(deleteAllWeek)
+            WEEKREPOSITORY.delete(deleteAllWeek)
         }
     }
 
-    fun update(update: List<WeekCellModel>) {
+    fun updateWeek(updateWeek: List<WeekCellModel>) {
         viewModelScope.launch(Dispatchers.IO) {
-            REPOSITORY.update(update)
+            WEEKREPOSITORY.update(updateWeek)
+        }
+    }
+
+    fun insertHours(allHours: List<HoursCellModel>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            HOURSREPOSITORY.insert(allHours)
+        }
+    }
+
+    fun deleteHours(deleteAllHours: List<HoursCellModel>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            HOURSREPOSITORY.delete(deleteAllHours)
+        }
+    }
+
+    fun updateHours(updateHours: List<HoursCellModel>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            HOURSREPOSITORY.update(updateHours)
         }
     }
 
@@ -93,9 +113,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun all() {
         val dao = AppRoomDatabase.getInstance(context).getAppRoomDao()
-        REPOSITORY = WeekDatabaseRepositoryImpl(dao)
-        allWeek = REPOSITORY.allWeek
-        count = REPOSITORY.coinsCount
+        val hoursDao = AppRoomDatabase.getInstance(context).getAppRoomHoursDao()
+        WEEKREPOSITORY = WeekDatabaseRepositoryImpl(dao)
+        HOURSREPOSITORY = HoursDatabaseRepositoryImpl(hoursDao)
+        allHours = HOURSREPOSITORY.allHours
+        countHours = HOURSREPOSITORY.countHours
+        allWeek = WEEKREPOSITORY.allWeek
+        countWeek = WEEKREPOSITORY.coinsCount
     }
 
 }

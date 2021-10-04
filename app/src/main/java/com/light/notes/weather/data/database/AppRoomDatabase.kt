@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.light.notes.weather.data.database.hours.HoursDao
 import com.light.notes.weather.data.database.week.Dao
 import com.light.notes.weather.ui.main.hours_adapter.HoursCellModel
 import com.light.notes.weather.ui.main.week_adapter.WeekCellModel
@@ -12,6 +13,7 @@ import com.light.notes.weather.ui.main.week_adapter.WeekCellModel
 abstract class AppRoomDatabase : RoomDatabase() {
 
     abstract fun getAppRoomDao(): Dao
+    abstract fun getAppRoomHoursDao(): HoursDao
 
     companion object {
 
