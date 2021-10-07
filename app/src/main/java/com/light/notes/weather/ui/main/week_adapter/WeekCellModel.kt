@@ -3,7 +3,6 @@ package com.light.notes.weather.ui.main.week_adapter
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.light.notes.weather.data.database.model.ModelWeek
 import com.light.notes.weather.domain.model.WeekModel
 
 @Entity(tableName = "table_week")

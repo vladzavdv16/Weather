@@ -28,14 +28,13 @@
                 android:layout_width="120dp"
                 android:layout_height="100dp"
                 android:layout_gravity="center_horizontal"
-                android:src="@drawable/ic_launcher_foreground" />
+                tools:src="@drawable/ic_launcher_foreground" />
 
             <TextView
                 android:id="@+id/tvTemp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:text="15°"
                 android:textSize="60sp"
                 tools:text="15°" />
 
@@ -44,7 +43,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:text="ясно"
                 android:textSize="24sp"
                 tools:text="переменная облачность" />
 

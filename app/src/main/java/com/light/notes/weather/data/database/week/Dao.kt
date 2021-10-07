@@ -1,10 +1,8 @@
 package com.light.notes.weather.data.database.week
 
-import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.room.Dao
-import com.light.notes.weather.data.database.model.ModelWeek
 import com.light.notes.weather.ui.main.week_adapter.WeekCellModel
 
 @Dao

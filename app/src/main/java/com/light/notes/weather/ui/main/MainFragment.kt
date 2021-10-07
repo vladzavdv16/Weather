@@ -16,6 +16,7 @@ import com.light.notes.weather.R
 import com.light.notes.weather.databinding.FragmentMainBinding
 import com.light.notes.weather.ui.main.hours_adapter.HoursAdapter
 import com.light.notes.weather.ui.main.hours_adapter.HoursCellModel
+import com.light.notes.weather.ui.main.model.DayCellModel
 import com.light.notes.weather.ui.main.week_adapter.WeekAdapter
 import com.light.notes.weather.ui.main.week_adapter.WeekCellModel
 import com.light.notes.weather.util.APP_ACTIVITY
@@ -33,6 +34,8 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
     private lateinit var locationManager: LocationManager
     private lateinit var observerListWeek: Observer<List<WeekCellModel>>
     private lateinit var observerListHours: Observer<List<HoursCellModel>>
+    private lateinit var observerDay: Observer<DayCellModel>
+    private lateinit var observerDayAll: Observer<DayCellModel>
 
     companion object {
         var LAT: String = ""
@@ -61,13 +64,25 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
         viewModel!!.all()
         observerListWeek = Observer {
             if (it.isNotEmpty()) {
-//                viewModel!!.delete(it)
                 weekAdapter.weekData(it)
+//                viewModel!!.deleteWeek(it)
             }
         }
         observerListHours = Observer {
             if (it.isNotEmpty()) {
                 hoursAdapter.hoursData(it)
+//                viewModel!!.deleteHours(it)
+            }
+        }
+        observerDay = Observer {
+            if (it != null) {
+                APP_ACTIVITY.title = it.name
+                binding.tvDescription.text = it.description
+                binding.tvTemp.text = "${it.temp}°C"
+                Picasso.get()
+                    .load("https://openweathermap.org/img/wn/" + it.icon + "@2x.png")
+                    .into(binding.image)
+//                viewModel!!.deleteDay(it)
             }
         }
         locationManager =
@@ -77,13 +92,10 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
 
     override fun onResume() {
         super.onResume()
-        println()
         init()
-        binding.recyclerWeek.adapter = weekAdapter
-        binding.recyclerHours.adapter = hoursAdapter
-
         viewModel?.allWeek?.observe(this, observerListWeek)
         viewModel?.allHours?.observe(this, observerListHours)
+        viewModel!!.allDay.observe(this, observerDay)
 
         binding.swipeRefresh.setOnRefreshListener {
             if (LAT.isEmpty()) {
@@ -91,22 +103,29 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
                 showToast("Error")
             } else {
                 setupData()
-//                viewModel?.allWeek?.observe(this, observerList)
-                viewModel?.day!!.observe(this) {
-                    APP_ACTIVITY.title = it.name
-                    binding.tvDescription.text = it.description
-                    binding.tvTemp.text = "${it.temp}°C"
-                    Picasso.get()
-                        .load("https://openweathermap.org/img/wn/" + it.icon + "@2x.png")
-                        .into(binding.image)
-                }
-                init()
-                binding.recyclerHours.adapter = hoursAdapter
-                binding.recyclerWeek.adapter = weekAdapter
-
                 viewModel?.fetchRequest()
+                viewModel!!.day.observe(this) {
+                    if (it != null) {
+                        binding.swipeRefresh.isRefreshing = false
+                        viewModel!!.allDay.removeObserver(observerDay)
+                        APP_ACTIVITY.title = it.name
+                        binding.tvDescription.text = it.description
+                        binding.tvTemp.text = "${it.temp}°C"
+                        Picasso.get()
+                            .load("https://openweathermap.org/img/wn/" + it.icon + "@2x.png")
+                            .into(binding.image)
+                        viewModel?.countDay?.observe(this) { count ->
+                            println(count)
+                            if (count == 0) {
+                                viewModel!!.insertDay(it)
+                            } else
+                                println(it.name)
+                        }
+                    }
+                }
             }
         }
+
     }
 
     private fun init() {
@@ -119,6 +138,8 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
         binding.recyclerWeek.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
+        binding.recyclerWeek.adapter = weekAdapter
+        binding.recyclerHours.adapter = hoursAdapter
     }
 
 
@@ -137,7 +158,6 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
             }
         })
 
-
         viewModel?.week?.observe(this, Observer { it ->
             if (it.isNotEmpty()) {
                 viewModel!!.allWeek.removeObserver(observerListWeek)
@@ -146,13 +166,11 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
                     if (count == 0) {
                         viewModel!!.insertWeek(it)
                     } else {
-                        viewModel?.updateWeek(it)
+                        viewModel!!.updateWeek(it)
                     }
                 })
             }
         })
-
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

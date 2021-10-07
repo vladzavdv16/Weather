@@ -1,9 +1,10 @@
-package com.light.notes.weather
+package com.light.notes.weather.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.light.notes.weather.R
 import com.light.notes.weather.databinding.ActivityMainBinding
 import com.light.notes.weather.util.APP_ACTIVITY
 
