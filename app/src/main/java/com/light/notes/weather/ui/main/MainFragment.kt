@@ -7,7 +7,6 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -72,9 +71,11 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
             if (it.isNotEmpty()) {
                 hoursAdapter.hoursData(it)
 //                viewModel!!.deleteHours(it)
+            } else {
+                binding.welcomeText.visibility = View.VISIBLE
             }
         }
-        observerDay = Observer {
+        observerDayAll = Observer {
             if (it != null) {
                 APP_ACTIVITY.title = it.name
                 binding.tvDescription.text = it.description
@@ -95,37 +96,45 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
         init()
         viewModel?.allWeek?.observe(this, observerListWeek)
         viewModel?.allHours?.observe(this, observerListHours)
-        viewModel!!.allDay.observe(this, observerDay)
+        viewModel!!.allDay.observe(this, observerDayAll)
 
         binding.swipeRefresh.setOnRefreshListener {
             if (LAT.isEmpty()) {
+                getLocation()
                 binding.swipeRefresh.isRefreshing = false
-                showToast("Error")
             } else {
                 setupData()
                 viewModel?.fetchRequest()
-                viewModel!!.day.observe(this) {
+                viewModel!!.day.observe(this) { it ->
                     if (it != null) {
-                        binding.swipeRefresh.isRefreshing = false
-                        viewModel!!.allDay.removeObserver(observerDay)
-                        APP_ACTIVITY.title = it.name
-                        binding.tvDescription.text = it.description
-                        binding.tvTemp.text = "${it.temp}°C"
-                        Picasso.get()
-                            .load("https://openweathermap.org/img/wn/" + it.icon + "@2x.png")
-                            .into(binding.image)
+                        println(it.name)
                         viewModel?.countDay?.observe(this) { count ->
                             println(count)
                             if (count == 0) {
                                 viewModel!!.insertDay(it)
-                            } else
-                                println(it.name)
+                                APP_ACTIVITY.title = it.name
+                                binding.tvDescription.text = it.description
+                                binding.tvTemp.text = "${it.temp}°C"
+                                Picasso.get()
+                                    .load("https://openweathermap.org/img/wn/" + it.icon + "@2x.png")
+                                    .into(binding.image)
+                            } else {
+                                observerDayAll = Observer { iti ->
+                                    if (iti != null)
+                                        viewModel!!.deleteDay(iti)
+                                    println(iti)
+                                    binding.swipeRefresh.isRefreshing = false
+                                }
+                            }
+                            viewModel?.allDay?.observe(this, observerDayAll)
+                            viewModel!!.allDay.removeObserver(observerDayAll)
+
                         }
                     }
                 }
             }
-        }
 
+        }
     }
 
     private fun init() {
@@ -144,6 +153,7 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
 
 
     private fun setupData() {
+        binding.welcomeText.visibility = View.GONE
         viewModel?.hours?.observe(this, Observer { it ->
             if (it.isNotEmpty()) {
                 viewModel!!.allHours.removeObserver(observerListHours)
@@ -152,8 +162,13 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
                     if (count == 0) {
                         viewModel!!.insertHours(it)
                     } else {
-                        viewModel!!.updateHours(it)
+                        observerListHours = Observer { iti ->
+                            if (iti != null)
+                                viewModel!!.deleteHours(iti)
+                        }
                     }
+                    viewModel!!.allHours.observe(this, observerListHours)
+                    viewModel!!.allHours.removeObserver(observerListHours)
                 })
             }
         })
@@ -166,8 +181,13 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
                     if (count == 0) {
                         viewModel!!.insertWeek(it)
                     } else {
-                        viewModel!!.updateWeek(it)
+                        observerListWeek = Observer { iti ->
+                            if (iti != null)
+                                viewModel!!.deleteWeek(iti)
+                        }
                     }
+                    viewModel!!.allWeek.observe(this, observerListWeek)
+                    viewModel!!.allWeek.removeObserver(observerListWeek)
                 })
             }
         })
@@ -187,30 +207,34 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
     }
 
     override fun onLocationChanged(p0: Location) {
-        if (p0 != null) {
-            LAT = p0.latitude.toString()
-            LON = p0.longitude.toString()
-            println("$LON $LAT")
-        } else {
-            Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show()
-            binding.swipeRefresh.isRefreshing = false
-        }
+        LAT = p0.latitude.toString()
+        LON = p0.longitude.toString()
+        println("$LON $LAT")
     }
 
     @SuppressLint("MissingPermission")
     private fun getLocation() {
         if (locationManager.isProviderEnabled(
-                LocationManager.NETWORK_PROVIDER
-            ) || locationManager.isProviderEnabled(
                 LocationManager.GPS_PROVIDER
+            ) && locationManager.isProviderEnabled(
+                LocationManager.NETWORK_PROVIDER
             )
         ) {
             locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER, 20000, 0F, this
             )
         } else {
-            showToast("Для получения местоположения включите GPS")
+            showToast("Включите GPS")
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+
+//        viewModel?.allWeek?.removeObserver(observerListWeek)
+//        viewModel!!.allHours.removeObserver(observerListHours)
+//        viewModel!!.allDay.removeObserver(observerDayAll)
+    }
 }
+
+

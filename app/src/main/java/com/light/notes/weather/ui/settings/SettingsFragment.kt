@@ -10,16 +10,9 @@ import com.light.notes.weather.databinding.FragmentMainBinding
 import com.light.notes.weather.databinding.FragmentSettingsBinding
 
 
-class SettingsFragment : Fragment() {
+class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
     private lateinit var binding: FragmentSettingsBinding
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings, container, false)
-    }
 
 }

@@ -23,6 +23,17 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <TextView
+                android:id="@+id/welcome_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="8dp"
+                android:fontFamily="serif-monospace"
+                android:gravity="center"
+                android:text="@string/text_welcome"
+                android:textSize="24sp"
+                android:visibility="gone" />
+
             <ImageView
                 android:id="@+id/image"
                 android:layout_width="120dp"

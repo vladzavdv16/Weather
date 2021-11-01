@@ -1,6 +1,7 @@
 package com.light.notes.weather.ui.main
 
 import android.app.Application
+import android.widget.Toast
 import androidx.lifecycle.*
 import com.light.notes.weather.data.database.AppRoomDatabase
 import com.light.notes.weather.data.database.day.DayDatabaseRepository
@@ -19,6 +20,7 @@ import com.light.notes.weather.ui.main.week_adapter.mapToUI
 import com.light.notes.weather.util.DAYREPOSITORY
 import com.light.notes.weather.util.HOURSREPOSITORY
 import com.light.notes.weather.util.WEEKREPOSITORY
+import com.light.notes.weather.util.showToast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -120,18 +122,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun fetchRequest() {
         viewModelScope.launch {
             _isLoading.postValue(true)
-            withContext(Dispatchers.Default) {
-                val hours = hoursRepo.fetchHours()
-                val week = weekRepo.fetchWeek()
-                val day = dayRepo.fetchDay()
+            try {
+                withContext(Dispatchers.Default) {
+                    val hours = hoursRepo.fetchHours()
+                    val week = weekRepo.fetchWeek()
+                    val day = dayRepo.fetchDay()
+                    _isLoading.postValue(false)
+                    _hours.postValue(hours.map {
+                        it.mapToUIHours()
+                    })
+                    _week.postValue(week.map {
+                        it.mapToUI()
+                    })
+                    _day.postValue(day.mapToUI())
+                }
+            } catch (e: Exception) {
+                showToast("Включите передачу данных или WI-FI")
                 _isLoading.postValue(false)
-                _hours.postValue(hours.map {
-                    it.mapToUIHours()
-                })
-                _week.postValue(week.map {
-                    it.mapToUI()
-                })
-                _day.postValue(day.mapToUI())
             }
         }
     }
