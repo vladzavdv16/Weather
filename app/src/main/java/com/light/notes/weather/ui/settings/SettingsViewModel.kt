@@ -1,4 +1,6 @@
 package com.light.notes.weather.ui.settings
 
-class SettingsViewModel {
+import androidx.lifecycle.ViewModel
+
+class SettingsViewModel :ViewModel(){
 }
