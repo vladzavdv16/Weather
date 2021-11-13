@@ -43,7 +43,6 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         viewModel?.initDatabase()
         hoursAdapter = HoursAdapter()
         weekAdapter = WeekAdapter()
@@ -54,12 +53,12 @@ class MainFragment : Fragment(R.layout.fragment_main), LocationListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentMainBinding.bind(view)
+        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         setHasOptionsMenu(true)
     }
 
     override fun onStart() {
         super.onStart()
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         viewModel!!.all()
         observerListWeek = Observer {
             if (it.isNotEmpty()) {

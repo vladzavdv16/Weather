@@ -6,4 +6,6 @@ import com.light.notes.weather.domain.model.WeekModel
 interface WeekRepo {
 
     suspend fun fetchWeek(): List<WeekModel>
+
+    suspend fun saveWeek(dataWeek: List<WeekModel>): Boolean
 }

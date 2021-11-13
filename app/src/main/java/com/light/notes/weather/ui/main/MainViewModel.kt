@@ -1,16 +1,15 @@
 package com.light.notes.weather.ui.main
 
 import android.app.Application
-import android.widget.Toast
 import androidx.lifecycle.*
 import com.light.notes.weather.data.database.AppRoomDatabase
-import com.light.notes.weather.data.database.day.DayDatabaseRepository
 import com.light.notes.weather.data.database.day.DayDatabaseRepositoryImpl
 import com.light.notes.weather.data.database.hours.HoursDatabaseRepositoryImpl
 import com.light.notes.weather.data.database.week.WeekDatabaseRepositoryImpl
-import com.light.notes.weather.domain.repository.DayRepoImpl
-import com.light.notes.weather.domain.repository.HoursRepoImpl
-import com.light.notes.weather.domain.repository.WeekRepoImpl
+import com.light.notes.weather.data.repository.DayRepoImpl
+import com.light.notes.weather.data.repository.HoursRepoImpl
+import com.light.notes.weather.data.repository.WeekRepoImpl
+import com.light.notes.weather.domain.usecase.SaveWeekUseCase
 import com.light.notes.weather.ui.main.hours_adapter.HoursCellModel
 import com.light.notes.weather.ui.main.hours_adapter.mapToUIHours
 import com.light.notes.weather.ui.main.model.DayCellModel
@@ -25,7 +24,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+class MainViewModel(application: Application, private val saveWeekUseCase: SaveWeekUseCase) :
+    AndroidViewModel(application) {
 
     private val context = application
 

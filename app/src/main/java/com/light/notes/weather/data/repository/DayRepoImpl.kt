@@ -1,10 +1,11 @@
-package com.light.notes.weather.domain.repository
+package com.light.notes.weather.data.repository
 
 
 
 import com.light.notes.weather.data.network.Retrofit
 import com.light.notes.weather.domain.model.DayModel
 import com.light.notes.weather.domain.model.mapToDomain
+import com.light.notes.weather.domain.repository.DayRepo
 import com.light.notes.weather.ui.main.MainFragment
 
 
